@@ -21,50 +21,59 @@ const scores = {
     : 0,
 };
 
-document.getElementById('menang').textContent = `Menang: ${scores.menang}`;
-document.getElementById('seri').textContent = `Seri: ${scores.seri}`;
-document.getElementById('kalah').textContent = `Kalah: ${scores.kalah}`;
+function updateResult(result) {
+  document.getElementById('result').textContent = result;
+}
 
-function updateScores() {
+function updateDisplay() {
   document.getElementById('menang').textContent = `Menang: ${scores.menang}`;
   document.getElementById('seri').textContent = `Seri: ${scores.seri}`;
   document.getElementById('kalah').textContent = `Kalah: ${scores.kalah}`;
+}
+
+function updateLocalStorage() {
   localStorage.setItem('menang', scores.menang);
   localStorage.setItem('seri', scores.seri);
   localStorage.setItem('kalah', scores.kalah);
 }
 
-function play(playerChoice, playerImage) {
-  const randomIndex = Math.floor(Math.random() * images.length);
+function updateScores(result) {
+  scores[result]++;
+  updateDisplay();
+  updateLocalStorage();
+}
 
+function setImages(playerImage, randomIndex) {
   document.getElementById('player').src = images[playerImage];
   document.getElementById('computer').src = images[randomIndex];
-  const textImage = document.getElementById('text-image');
-  textImage.textContent = playerChoice;
-  const textImage2 = document.getElementById('text-image2');
-  textImage2.textContent =
-    randomIndex === 0
-      ? 'Jempol'
-      : randomIndex === 1
-      ? 'Telunjuk'
-      : 'Kelingking';
+  document.getElementById('text-image').textContent =
+    getChoiceName(playerImage);
+  document.getElementById('text-image2').textContent =
+    getChoiceName(randomIndex);
+}
+
+function getChoiceName(index) {
+  return index === 0 ? 'Jempol' : index === 1 ? 'Telunjuk' : 'Kelingking';
+}
+
+function play(playerChoice, playerImage) {
+  const randomIndex = Math.floor(Math.random() * images.length);
+  setImages(playerImage, randomIndex);
 
   if (randomIndex === playerImage) {
-    document.getElementById('result').textContent = 'Seri';
-    scores.seri++;
+    updateResult('Seri');
+    updateScores('seri');
   } else if (
     (playerImage === 0 && randomIndex === 1) ||
     (playerImage === 1 && randomIndex === 2) ||
     (playerImage === 2 && randomIndex === 0)
   ) {
-    document.getElementById('result').textContent = 'Menang';
-    scores.menang++;
+    updateResult('Menang');
+    updateScores('menang');
   } else {
-    document.getElementById('result').textContent = 'Kalah';
-    scores.kalah++;
+    updateResult('Kalah');
+    updateScores('kalah');
   }
-
-  updateScores();
 }
 
 btnJempol.addEventListener('click', () => play('Jempol', 0));
@@ -75,5 +84,8 @@ btnReset.addEventListener('click', () => {
   scores.menang = 0;
   scores.seri = 0;
   scores.kalah = 0;
-  updateScores();
+  updateDisplay();
+  updateLocalStorage();
 });
+
+updateDisplay();
